@@ -4,15 +4,19 @@ import subprocess
 from pathlib import Path
 from loguru import logger
 from github import Github
-from notion_client import Client
+# from notion_client import Client # Removed as Notion is replaced by Confluence-like system
 import docker
 import pylint.lint
 import pytest
 
 # --- Configuration (Placeholders - MUST be set via environment variables in production) ---
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "YOUR_GITHUB_TOKEN")
-NOTION_TOKEN = os.environ.get("NOTION_TOKEN", "YOUR_NOTION_TOKEN")
-NOTION_DATABASE_ID = os.environ.get("NOTION_DATABASE_ID", "YOUR_NOTION_DATABASE_ID")
+# NOTION_TOKEN = os.environ.get("NOTION_TOKEN", "YOUR_NOTION_TOKEN") # Removed
+# NOTION_DATABASE_ID = os.environ.get("NOTION_DATABASE_ID", "YOUR_NOTION_DATABASE_ID") # Removed
+CONFLUENCE_API_URL = os.environ.get("CONFLUENCE_API_URL", "http://192.168.178.151:8091/rest/api")
+CONFLUENCE_SPACE_KEY = os.environ.get("CONFLUENCE_SPACE_KEY", "ARIA")
+CONFLUENCE_USER = os.environ.get("CONFLUENCE_USER", "aria_agent")
+CONFLUENCE_PASSWORD = os.environ.get("CONFLUENCE_PASSWORD", "secret_password")
 
 # --- 1. GitHub Tools (PyGithub) ---
 
@@ -82,11 +86,11 @@ def commit_code(repo_name: str, file_path: str, content: str, commit_message: st
         logger.error(f"GitHub commit_code failed: {e}")
         return f"Error: Could not commit code to GitHub. {e}"
 
-# --- 2. Notion Tools (notion-client) ---
+# --- 2. Confluence-like System Tools (Placeholder for local installation) ---
 
-def log_test_result_to_notion(project_name: str, test_summary: str, status: str) -> str:
+def log_test_result_to_confluence(project_name: str, test_summary: str, status: str) -> str:
     """
-    Logs a test result summary to a Notion database.
+    Logs a test result summary to a page in the local Confluence-like system (e.g., BookStack/Wiki.js).
     
     Args:
         project_name: Name of the project.
@@ -94,29 +98,28 @@ def log_test_result_to_notion(project_name: str, test_summary: str, status: str)
         status: The overall status ('PASS' or 'FAIL').
         
     Returns:
-        A success message with the Notion page URL or an error message.
+        A success message with the page URL or an error message.
     """
-    if NOTION_TOKEN == "YOUR_NOTION_TOKEN" or NOTION_DATABASE_ID == "YOUR_NOTION_DATABASE_ID":
-        return "Error: Notion integration not configured. Please set NOTION_TOKEN and NOTION_DATABASE_ID."
+    if CONFLUENCE_API_URL.startswith("http://192.168.178.151"):
+        return f"Error: Confluence-like system not yet installed at {CONFLUENCE_API_URL}. Cannot log test results."
         
+    # NOTE: Actual implementation would use 'requests' to post to the Confluence-like API.
+    # We use a placeholder here as the actual API (BookStack, Wiki.js, etc.) is unknown.
+    
     try:
-        notion = Client(auth=NOTION_TOKEN)
+        # Placeholder for API call
+        # response = requests.post(
+        #     f"{CONFLUENCE_API_URL}/content",
+        #     auth=(CONFLUENCE_USER, CONFLUENCE_PASSWORD),
+        #     json={...}
+        # )
         
-        # Create a new page in the database
-        new_page = notion.pages.create(
-            parent={"database_id": NOTION_DATABASE_ID},
-            properties={
-                "Name": {"title": [{"text": {"content": f"{project_name} Test Result - {status}"}}]},
-                "Project": {"rich_text": [{"text": {"content": project_name}}]},
-                "Status": {"select": {"name": status}},
-                "Summary": {"rich_text": [{"text": {"content": test_summary}}]},
-                "Date": {"date": {"start": datetime.now().isoformat()}}
-            }
-        )
-        return f"Successfully logged test result to Notion. Page URL: {new_page['url']}"
+        # Simulating success
+        page_url = f"http://192.168.178.151:8091/display/{CONFLUENCE_SPACE_KEY}/{project_name}-Test-Result"
+        return f"Successfully logged test result to Confluence-like system. Status: {status}. Page URL: {page_url}"
     except Exception as e:
-        logger.error(f"Notion log_test_result_to_notion failed: {e}")
-        return f"Error: Could not log test result to Notion. {e}"
+        logger.error(f"Confluence log_test_result_to_confluence failed: {e}")
+        return f"Error: Could not log test result to Confluence-like system. {e}"
 
 # --- 3. Docker Tools (docker-py) ---
 

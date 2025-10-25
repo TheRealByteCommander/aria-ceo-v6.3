@@ -131,7 +131,7 @@ agents:
     skills:
       - run_pylint_analysis
       - run_pytest
-      - log_test_result_to_notion
+      - log_test_result_to_confluence
 
   Morgan:
     name: Morgan
