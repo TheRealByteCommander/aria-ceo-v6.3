@@ -17,9 +17,9 @@ from pymongo import MongoClient
 
 # --- Configuration (Placeholders - MUST be set via environment variables in production) ---
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "YOUR_GITHUB_TOKEN")
-REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
+REDIS_HOST = os.environ.get("REDIS_HOST", "192.168.178.151")
 REDIS_PORT = int(os.environ.get("REDIS_PORT", 6379))
-MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017/")
+MONGO_URI = os.environ.get("MONGO_URI", "mongodb://192.168.178.151:27017/")
 MONGO_DB_NAME = os.environ.get("MONGO_DB_NAME", "aria_logs")
 
 # --- 1. GitHub Tools (PyGithub) ---
