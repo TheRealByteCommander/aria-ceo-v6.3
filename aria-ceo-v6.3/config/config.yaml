@@ -7,8 +7,8 @@ llm:
     host: 192.168.178.159
     port: 11434
     models:
-      aria: llama3.1:8b
-      riley: llama3.2:3b
+      aria: llama3.2:3b
+      riley: llama3.1:8b
   
   # GMKTec (for Worker Agents)
   gmktec:
@@ -16,10 +16,10 @@ llm:
     port: 11434
     models:
       sam: deepseek-coder-v2:16b-lite-instruct-q6_K
-      jordan: qwen2.5-coder:14b-instruct-q6_K
+      jordan: qwen2.5-coder:32b-instruct-q6_K
       taylor: qwen2.5-coder:7b-instruct-q8_0
-      morgan: minicpm-v:8b
-      alex: qwen2.5-coder:32b-instruct-q6_K
+      morgan: qwen2.5-coder:14b-instruct-q6_K
+      alex: minicpm-v:8b
 
 # GitHub Integration
 github:
