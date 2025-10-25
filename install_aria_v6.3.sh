@@ -77,11 +77,30 @@ fi
 
 # Install fixed aria_ceo.py
 echo ""
-echo "Installing fixed aria_ceo.py (v6.3)..."
-cp aria_ceo_fixed.py /opt/aria-system/agents/aria_ceo.py
+echo "Installing aria_ceo.py (v6.3)..."
+cp aria_ceo.py /opt/aria-system/agents/aria_ceo.py
 chown $SYSTEM_USER:$SYSTEM_USER /opt/aria-system/agents/aria_ceo.py
 chmod 644 /opt/aria-system/agents/aria_ceo.py
 echo -e "${GREEN}✓${NC} Aria CEO v6.3 installed"
+
+# Install new dependencies and configuration
+echo ""
+echo "Installing new dependencies (memory_manager.py, tools.py)..."
+cp memory_manager.py /opt/aria-system/agents/memory_manager.py
+chown $SYSTEM_USER:$SYSTEM_USER /opt/aria-system/agents/memory_manager.py
+chmod 644 /opt/aria-system/agents/memory_manager.py
+
+cp tools.py /opt/aria-system/agents/tools.py
+chown $SYSTEM_USER:$SYSTEM_USER /opt/aria-system/agents/tools.py
+chmod 644 /opt/aria-system/agents/tools.py
+echo -e "${GREEN}✓${NC} Dependencies installed"
+
+echo ""
+echo "Installing new configuration (agents_config.yaml)..."
+cp agents_config.yaml /opt/aria-system/config/agents_config.yaml
+chown $SYSTEM_USER:$SYSTEM_USER /opt/aria-system/config/agents_config.yaml
+chmod 644 /opt/aria-system/config/agents_config.yaml
+echo -e "${GREEN}✓${NC} Configuration installed"
 
 # Fix Slack bot
 echo ""
