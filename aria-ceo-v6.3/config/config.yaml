@@ -8,7 +8,7 @@ llm:
     port: 11434
     models:
       aria: llama3.1:8b
-      riley: llama3.1:8b
+      riley: llama3.2:3b
   
   # GMKTec (for Worker Agents)
   gmktec:
