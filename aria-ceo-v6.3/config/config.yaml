@@ -15,11 +15,11 @@ llm:
     host: 192.168.178.155
     port: 11434
     models:
-      sam: qwen2.5-coder:32b
-      jordan: llama3.2:3b
-      taylor: llama3.2:3b
-      morgan: llama3.2:3b
-      alex: llama3.2:3b
+      sam: qwen2.5-coder:32b-instruct-q6_K
+      jordan: qwen2.5-coder:7b-instruct-q8_0
+      taylor: qwen2.5-coder:7b-instruct-q8_0
+      morgan: qwen2.5-coder:7b-instruct-q8_0
+      alex: qwen2.5-coder:7b-instruct-q8_0
 
 # GitHub Integration
 github:
