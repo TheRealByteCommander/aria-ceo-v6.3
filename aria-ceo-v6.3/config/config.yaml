@@ -1,0 +1,39 @@
+# --- Aria CEO Global Configuration ---
+
+# LLM Configuration (Ollama Endpoints)
+llm:
+  # Mac Mini (for CEO/Research Agents)
+  mac_mini:
+    host: 192.168.178.159
+    port: 11434
+    models:
+      aria: llama3.1:8b
+      riley: llama3.1:8b
+  
+  # GMKTec (for Worker Agents)
+  gmktec:
+    host: 192.168.178.155
+    port: 11434
+    models:
+      sam: qwen2.5-coder:32b
+      jordan: llama3.2:3b
+      taylor: llama3.2:3b
+      morgan: llama3.2:3b
+      alex: llama3.2:3b
+
+# GitHub Integration
+github:
+  # Set to true to enable GitHub operations (requires GITHUB_TOKEN env var)
+  enabled: true
+  # Default repository for operations
+  default_repo: TheRealByteCommander/aria-ceo-v6.3
+
+# Docker Hub Integration
+docker_hub:
+  enabled: false
+  username: your_dockerhub_username
+
+# Dashboard Configuration
+dashboard:
+  websocket_url: "ws://192.168.178.150:8090/ws"
+  http_url: "http://192.168.178.150:8090"

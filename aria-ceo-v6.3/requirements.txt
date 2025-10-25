@@ -1,0 +1,12 @@
+pyautogen
+loguru
+PyYAML
+diskcache
+websockets
+PyGithub
+notion-client
+docker
+pylint
+pytest
+redis
+pymongo

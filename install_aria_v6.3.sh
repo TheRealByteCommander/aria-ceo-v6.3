@@ -85,7 +85,7 @@ echo -e "${GREEN}✓${NC} Aria CEO v6.3 installed"
 
 # Install new dependencies and configuration
 echo ""
-echo "Installing new dependencies (memory_manager.py, tools.py)..."
+echo "Installing new dependencies (memory_manager.py, tools.py, requirements.txt)..."
 cp memory_manager.py /opt/aria-system/agents/memory_manager.py
 chown $SYSTEM_USER:$SYSTEM_USER /opt/aria-system/agents/memory_manager.py
 chmod 644 /opt/aria-system/agents/memory_manager.py
@@ -93,26 +93,49 @@ chmod 644 /opt/aria-system/agents/memory_manager.py
 cp tools.py /opt/aria-system/agents/tools.py
 chown $SYSTEM_USER:$SYSTEM_USER /opt/aria-system/agents/tools.py
 chmod 644 /opt/aria-system/agents/tools.py
+
+cp requirements.txt /opt/aria-system/requirements.txt
+chown $SYSTEM_USER:$SYSTEM_USER /opt/aria-system/requirements.txt
+chmod 644 /opt/aria-system/requirements.txt
 echo -e "${GREEN}✓${NC} Dependencies installed"
 
 echo ""
-echo "Installing new configuration (agents_config.yaml)..."
+echo "Installing new configuration (agents_config.yaml, config.yaml)..."
 cp agents_config.yaml /opt/aria-system/config/agents_config.yaml
 chown $SYSTEM_USER:$SYSTEM_USER /opt/aria-system/config/agents_config.yaml
 chmod 644 /opt/aria-system/config/agents_config.yaml
+
+# Copy config.yaml template (only if it doesn't exist to preserve local changes)
+if [ ! -f "/opt/aria-system/config/config.yaml" ]; then
+    cp config/config.yaml /opt/aria-system/config/config.yaml
+    chown $SYSTEM_USER:$SYSTEM_USER /opt/aria-system/config/config.yaml
+    chmod 644 /opt/aria-system/config/config.yaml
+    echo -e "${GREEN}✓${NC} config.yaml template installed"
+else
+    echo -e "${YELLOW}Note: config.yaml already exists, skipping template copy.${NC}"
+fi
 echo -e "${GREEN}✓${NC} Configuration installed"
 
-# Fix Slack bot
+# Install Slack bot integration file
 echo ""
-echo "Fixing Slack bot integration..."
-SLACK_BOT_FILE="/opt/aria-system/integrations/slack_bot_v6.py"
+echo "Installing Slack bot integration file..."
+SLACK_BOT_FILE_SRC="integrations/slack_bot_v6.py"
+SLACK_BOT_FILE_DST="/opt/aria-system/integrations/slack_bot_v6.py"
 
-if [ -f "$SLACK_BOT_FILE" ]; then
+cp "$SLACK_BOT_FILE_SRC" "$SLACK_BOT_FILE_DST"
+chown $SYSTEM_USER:$SYSTEM_USER "$SLACK_BOT_FILE_DST"
+chmod 644 "$SLACK_BOT_FILE_DST"
+echo -e "${GREEN}✓${NC} Slack bot file installed"
+
+# Fix Slack bot logic (if the file was present before)
+echo ""
+echo "Fixing Slack bot integration logic..."
+if [ -f "$SLACK_BOT_FILE_DST" ]; then
     # Fix: client → self.app.client
-    sed -i 's/AriaCEO(slack_client=client)/AriaCEO(slack_client=self.app.client)/g' "$SLACK_BOT_FILE"
-    echo -e "${GREEN}✓${NC} Slack bot fixed"
+    sed -i 's/AriaCEO(slack_client=client)/AriaCEO(slack_client=self.app.client)/g' "$SLACK_BOT_FILE_DST"
+    echo -e "${GREEN}✓${NC} Slack bot logic fixed"
 else
-    echo -e "${YELLOW}Warning: Slack bot file not found${NC}"
+    echo -e "${YELLOW}Warning: Slack bot file not found for logic fix${NC}"
 fi
 
 # Install websockets dependency
