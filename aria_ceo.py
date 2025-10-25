@@ -59,12 +59,15 @@ class AriaCEO:
         self.current_channel = None
         logger.info(f"Initializing Aria CEO - Version {self.version}")
         
-        # Slack client for status updates
+        # Slack client for status updates (HOTFIX)
         self.slack_client = slack_client
         self.current_channel = None
         
         # Load config
         self.config = self._load_config()
+        
+        # Initialize Database Configuration
+        self.db_config = self.config.get('database', {})
         
         # Initialize GitHub integration
         github_config = self.config.get('github', {})
@@ -207,8 +210,24 @@ class AriaCEO:
             # Register tools based on the YAML configuration
             for tool_name in config.get('skills', []):
                 if hasattr(tools, tool_name):
-                    agent.register_for_llm(getattr(tools, tool_name))
-                    agent.register_for_exec(getattr(tools, tool_name))
+                    tool_func = getattr(tools, tool_name)
+                    
+                    # Special handling for tools that need DB config
+                    # We set environment variables here, which tools.py will read
+                    if tool_name == 'queue_task':
+                        redis_conf = self.db_config.get('redis', {})
+                        if redis_conf:
+                            os.environ['REDIS_HOST'] = redis_conf.get('host', '')
+                            os.environ['REDIS_PORT'] = str(redis_conf.get('port', 6379))
+                    
+                    if tool_name == 'log_test_result_to_mongo':
+                        mongo_conf = self.db_config.get('mongodb', {})
+                        if mongo_conf:
+                            os.environ['MONGO_URI'] = f"mongodb://{mongo_conf.get('host')}:{mongo_conf.get('port')}/"
+                            os.environ['MONGO_DB_NAME'] = mongo_conf.get('database', 'aria_logs')
+                            
+                    agent.register_for_llm(tool_func)
+                    agent.register_for_exec(tool_func)
                     logger.info(f"Tool '{tool_name}' registered for agent '{agent_name}'")
                 else:
                     logger.warning(f"Tool '{tool_name}' not found in tools.py for agent '{agent_name}'")

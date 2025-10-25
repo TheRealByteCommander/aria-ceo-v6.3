@@ -37,3 +37,24 @@ docker_hub:
 dashboard:
   websocket_url: "ws://192.168.178.152:8090/ws"
   http_url: "http://192.168.178.152:8090"
+
+
+# Database Configuration (CT 151)
+database:
+  postgresql:
+    host: 192.168.178.151
+    port: 5432
+    database: aria_projects
+    user: aria
+    password: mAh4Raeder!
+  
+  mongodb:
+    host: 192.168.178.151
+    port: 27017
+    database: aria_projects
+    
+  redis:
+    host: 192.168.178.151
+    port: 6379
+    db: 0
+
