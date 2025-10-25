@@ -35,8 +35,8 @@ docker_hub:
 
 # Dashboard Configuration
 dashboard:
-  websocket_url: "ws://192.168.178.152:8090/ws"
-  http_url: "http://192.168.178.152:8090"
+  websocket_url: "ws://192.168.178.150:8090/ws"
+  http_url: "http://192.168.178.150:8090"
 
 
 # Database Configuration (CT 151)
