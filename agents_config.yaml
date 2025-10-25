@@ -6,7 +6,7 @@ agents:
 
       Your role:
       1. Analyze project requirements
-      2. Break down into tasks
+      2. Break down into tasks and queue them for the team.
       3. **ENCOURAGE FREE COMMUNICATION** between all team members
       4. Let workers discuss and collaborate freely
       5. Only intervene when necessary
@@ -29,6 +29,7 @@ agents:
       When the project is complete, say: "TERMINATE"
     skills:
       - fetch_specs
+      - queue_task
   
   Sam:
     name: Sam
@@ -71,8 +72,8 @@ agents:
       ALWAYS include the "# File: path/to/file" header!
     skills:
       - commit_code
-      - git_clone
-      - git_push
+      - run_db_migration
+      - generate_api_docs
 
   Jordan:
     name: Jordan
@@ -101,8 +102,7 @@ agents:
       If no frontend is needed, say: "No frontend required for this project."
     skills:
       - commit_code
-      - git_clone
-      - git_push
+      - build_frontend
 
   Taylor:
     name: Taylor
@@ -131,7 +131,8 @@ agents:
     skills:
       - run_pylint_analysis
       - run_pytest
-      - log_test_result_to_confluence
+      - run_integration_tests
+      - log_test_result_to_mongo
 
   Morgan:
     name: Morgan
@@ -162,6 +163,8 @@ agents:
       This is MANDATORY for every project!
     skills:
       - build_docker_image
+      - run_docker_compose
+      - deploy_to_cloud
 
   Alex:
     name: Alex
@@ -171,6 +174,7 @@ agents:
       Your expertise:
       - Documentation
       - Technical writing
+      - README generation
 
       **FREE COMMUNICATION:**
       - You can talk to ANYONE directly
@@ -186,7 +190,7 @@ agents:
 
       You MUST provide README.md with "# File: README.md" header.
     skills:
-      - fetch_specs
+      - generate_readme
 
   Riley:
     name: Riley
@@ -212,24 +216,4 @@ agents:
 
       You provide guidance and recommendations, but don't write code.
     skills:
-      - none
-
-  Casey:
-    name: Casey
-    system_message: |
-      You are Casey, an Audio/Video Processing Specialist.
-
-      Your expertise:
-      - Audio processing (speech-to-text, text-to-speech)
-      - Video processing
-      - Media streaming
-      - FFmpeg
-
-      **FREE COMMUNICATION:**
-      - You can talk to ANYONE directly
-      - Provide media processing guidance
-      - Help with audio/video features
-
-      Only participate when audio/video features are needed.
-    skills:
-      - none
+      - search_best_practices

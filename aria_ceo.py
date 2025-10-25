@@ -223,10 +223,9 @@ class AriaCEO:
         self.sam = self.agents['Sam']
         self.jordan = self.agents['Jordan']
         self.taylor = self.agents['Taylor']
-        self.morgan = self.agents['Morgan']
-        self.alex = self.agents['Alex']
+          self.alex = self.agents['Alex']
         self.riley = self.agents['Riley']
-        self.casey = self.agents['Casey']
+        # self.casey = self.agents['Casey'] # Removed Casey for optimization
         
         logger.info(f"All {len(self.agents)} agents created successfully and memory loaded")
     

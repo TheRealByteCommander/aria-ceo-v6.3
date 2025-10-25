@@ -120,7 +120,8 @@ echo ""
 echo "Installing websockets dependency..."
 if [ -f "/opt/aria-system/venv/bin/pip" ]; then
     /opt/aria-system/venv/bin/pip install -q websockets>=12.0
-    echo -e "${GREEN}✓${NC} Dependency installed"
+    /opt/aria-system/venv/bin/pip install -q PyGithub notion-client docker pylint pytest redis pymongo
+    echo -e "${GREEN}✓${NC} Dependencies installed"
 else
     echo -e "${YELLOW}Warning: Virtual environment not found${NC}"
 fi

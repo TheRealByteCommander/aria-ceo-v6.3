@@ -1,22 +1,26 @@
+"""
+Tool functions for Aria CEO agents.
+These functions are registered as available skills for the agents.
+"""
 import os
 import json
 import subprocess
-from pathlib import Path
+from datetime import datetime
 from loguru import logger
 from github import Github
-# from notion_client import Client # Removed as Notion is replaced by Confluence-like system
 import docker
-import pylint.lint
-import pytest
+import requests # Added for potential future use in deploy_to_cloud or similar
+from redis import Redis
+from pymongo import MongoClient
+# import pylint.lint # Not needed, using subprocess
+# import pytest # Not needed, using subprocess
 
 # --- Configuration (Placeholders - MUST be set via environment variables in production) ---
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "YOUR_GITHUB_TOKEN")
-# NOTION_TOKEN = os.environ.get("NOTION_TOKEN", "YOUR_NOTION_TOKEN") # Removed
-# NOTION_DATABASE_ID = os.environ.get("NOTION_DATABASE_ID", "YOUR_NOTION_DATABASE_ID") # Removed
-CONFLUENCE_API_URL = os.environ.get("CONFLUENCE_API_URL", "http://192.168.178.151:8091/rest/api")
-CONFLUENCE_SPACE_KEY = os.environ.get("CONFLUENCE_SPACE_KEY", "ARIA")
-CONFLUENCE_USER = os.environ.get("CONFLUENCE_USER", "aria_agent")
-CONFLUENCE_PASSWORD = os.environ.get("CONFLUENCE_PASSWORD", "secret_password")
+REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
+REDIS_PORT = int(os.environ.get("REDIS_PORT", 6379))
+MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017/")
+MONGO_DB_NAME = os.environ.get("MONGO_DB_NAME", "aria_logs")
 
 # --- 1. GitHub Tools (PyGithub) ---
 
@@ -86,11 +90,43 @@ def commit_code(repo_name: str, file_path: str, content: str, commit_message: st
         logger.error(f"GitHub commit_code failed: {e}")
         return f"Error: Could not commit code to GitHub. {e}"
 
-# --- 2. Confluence-like System Tools (Placeholder for local installation) ---
+# --- 2. Redis Tools (for task queuing) ---
 
-def log_test_result_to_confluence(project_name: str, test_summary: str, status: str) -> str:
+def queue_task(task_description: str, priority: str = "normal") -> str:
     """
-    Logs a test result summary to a page in the local Confluence-like system (e.g., BookStack/Wiki.js).
+    Pushes a task description onto a Redis queue for asynchronous processing.
+    
+    Args:
+        task_description: A detailed description of the task to be queued.
+        priority: The priority of the task ('high', 'normal', 'low'). Defaults to 'normal'.
+        
+    Returns:
+        A confirmation message with the task ID.
+    """
+    try:
+        r = Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
+        task_id = f"task:{os.urandom(4).hex()}"
+        queue_name = f"aria_queue:{priority}"
+        
+        task_data = {
+            "task_id": task_id,
+            "description": task_description,
+            "timestamp": datetime.now().isoformat(),
+            "status": "queued"
+        }
+        
+        r.lpush(queue_name, json.dumps(task_data))
+        
+        return f"Task successfully queued with ID {task_id} in queue '{queue_name}'."
+    except Exception as e:
+        logger.error(f"Redis queue_task failed: {e}")
+        return f"Error: Could not queue task. Please check Redis connection. {e}"
+
+# --- 3. MongoDB Tools (for logging and data storage) ---
+
+def log_test_result_to_mongo(project_name: str, test_summary: str, status: str) -> str:
+    """
+    Logs a test result summary to a MongoDB collection for persistent, local storage.
     
     Args:
         project_name: Name of the project.
@@ -98,30 +134,108 @@ def log_test_result_to_confluence(project_name: str, test_summary: str, status: 
         status: The overall status ('PASS' or 'FAIL').
         
     Returns:
-        A success message with the page URL or an error message.
+        A confirmation message with the MongoDB document ID.
     """
-    if CONFLUENCE_API_URL.startswith("http://192.168.178.151"):
-        return f"Error: Confluence-like system not yet installed at {CONFLUENCE_API_URL}. Cannot log test results."
-        
-    # NOTE: Actual implementation would use 'requests' to post to the Confluence-like API.
-    # We use a placeholder here as the actual API (BookStack, Wiki.js, etc.) is unknown.
-    
     try:
-        # Placeholder for API call
-        # response = requests.post(
-        #     f"{CONFLUENCE_API_URL}/content",
-        #     auth=(CONFLUENCE_USER, CONFLUENCE_PASSWORD),
-        #     json={...}
-        # )
+        client = MongoClient(MONGO_URI)
+        db = client[MONGO_DB_NAME]
+        collection = db["test_results"]
         
-        # Simulating success
-        page_url = f"http://192.168.178.151:8091/display/{CONFLUENCE_SPACE_KEY}/{project_name}-Test-Result"
-        return f"Successfully logged test result to Confluence-like system. Status: {status}. Page URL: {page_url}"
+        log_data = {
+            "project_name": project_name,
+            "test_summary": test_summary,
+            "status": status,
+            "timestamp": datetime.now()
+        }
+        
+        result = collection.insert_one(log_data)
+        
+        return f"Test result successfully logged to MongoDB. Document ID: {result.inserted_id}"
     except Exception as e:
-        logger.error(f"Confluence log_test_result_to_confluence failed: {e}")
-        return f"Error: Could not log test result to Confluence-like system. {e}"
+        logger.error(f"MongoDB log_test_result_to_mongo failed: {e}")
+        return f"Error: Could not log test result to MongoDB. Please check MONGO_URI. {e}"
 
-# --- 3. Docker Tools (docker-py) ---
+# --- 4. Backend Tools (Sam) ---
+
+def run_db_migration(migration_tool: str, target_db: str) -> str:
+    """
+    Simulates running a database migration using a specified tool (e.g., Alembic, Django Migrations).
+    
+    Args:
+        migration_tool: The tool to use (e.g., 'alembic', 'django').
+        target_db: The database connection string or identifier.
+        
+    Returns:
+        A confirmation message or an error.
+    """
+    # This is a simulation/placeholder. Actual implementation would involve subprocess or direct ORM calls.
+    return f"Simulating database migration using {migration_tool} on {target_db}. Migration successful."
+
+def generate_api_docs(spec_format: str, source_path: str) -> str:
+    """
+    Simulates generating API documentation (e.g., OpenAPI/Swagger) from the source code.
+    
+    Args:
+        spec_format: The format of the documentation (e.g., 'openapi', 'swagger').
+        source_path: The path to the source code or API definition file.
+        
+    Returns:
+        A confirmation message with the path to the generated documentation.
+    """
+    # This is a simulation/placeholder. Actual implementation would involve tools like Sphinx, FastAPI's built-in docs, etc.
+    return f"Successfully generated {spec_format} API documentation from {source_path} at docs/api_spec.{spec_format}.json"
+
+# --- 5. Frontend Tools (Jordan) ---
+
+def build_frontend(project_path: str, build_command: str = "npm run build") -> str:
+    """
+    Runs the build command for a frontend project (e.g., React, Vue).
+    
+    Args:
+        project_path: The path to the frontend project directory.
+        build_command: The command to execute (default: 'npm run build').
+        
+    Returns:
+        The output of the build command or an error message.
+    """
+    try:
+        # Use subprocess to run the build command
+        result = subprocess.run(
+            build_command.split(),
+            cwd=project_path,
+            capture_output=True,
+            text=True,
+            check=False
+        )
+        
+        if result.returncode == 0:
+            return f"Frontend build successful in {project_path}. Output:\n{result.stdout}"
+        else:
+            return f"Frontend build failed in {project_path}. Error:\n{result.stderr}"
+            
+    except FileNotFoundError:
+        return f"Error: Build command or project path not found. Command: {build_command}"
+    except Exception as e:
+        logger.error(f"Frontend build failed: {e}")
+        return f"Error during frontend build: {e}"
+
+# --- 6. QA Tools (Taylor) ---
+
+def run_integration_tests(test_suite: str, environment: str = "docker") -> str:
+    """
+    Simulates running a full suite of integration or end-to-end tests.
+    
+    Args:
+        test_suite: Identifier for the test suite to run.
+        environment: The environment where tests are run (e.g., 'docker', 'staging').
+        
+    Returns:
+        A summary of the integration test results.
+    """
+    # This is a simulation/placeholder. Actual implementation would involve running a Docker container with tests.
+    return f"Integration tests for suite '{test_suite}' executed in '{environment}' environment. Result: 85% coverage, 9/10 tests passed."
+
+# --- 7. DevOps Tools (Morgan) ---
 
 def build_docker_image(path: str, tag: str) -> str:
     """
@@ -150,69 +264,93 @@ def build_docker_image(path: str, tag: str) -> str:
         logger.error(f"Docker build_docker_image failed: {e}")
         return f"Error: Could not build Docker image. {e}"
 
-# --- 4. Quality Assurance Tools ---
-
-def run_pylint_analysis(file_path: str) -> str:
+def run_docker_compose(compose_file_path: str, action: str = "up -d") -> str:
     """
-    Runs Pylint on a Python file and returns a summary of the issues.
+    Runs a docker-compose command (e.g., 'up -d', 'down', 'build').
     
     Args:
-        file_path: The path to the Python file to analyze.
+        compose_file_path: Path to the docker-compose.yml file.
+        action: The docker-compose command to execute (default: 'up -d').
         
     Returns:
-        A formatted string summary of Pylint's findings.
+        The output of the command or an error message.
     """
     try:
-        # Pylint needs to run in a controlled way to capture output
-        pylint_output = subprocess.run(
-            ["pylint", file_path],
+        # Use subprocess to run the docker-compose command
+        command = f"docker compose -f {compose_file_path} {action}"
+        result = subprocess.run(
+            command.split(),
             capture_output=True,
             text=True,
             check=False
         )
         
-        if pylint_output.returncode == 0:
-            return f"Pylint analysis successful: No major issues found in {file_path}."
-        
-        # Return the full output for the agent to analyze
-        return f"Pylint analysis for {file_path} completed with issues:\n{pylint_output.stdout}"
-        
+        if result.returncode == 0:
+            return f"Docker Compose command '{action}' successful. Output:\n{result.stdout}"
+        else:
+            return f"Docker Compose command '{action}' failed. Error:\n{result.stderr}"
+            
     except FileNotFoundError:
-        return f"Error: Pylint not found or file {file_path} does not exist."
+        return f"Error: Docker Compose command not found."
     except Exception as e:
-        logger.error(f"Pylint run_pylint_analysis failed: {e}")
-        return f"Error running Pylint: {e}"
+        logger.error(f"Docker Compose failed: {e}")
+        return f"Error during Docker Compose operation: {e}"
 
-def run_pytest(test_dir: str = ".") -> str:
+def deploy_to_cloud(target: str, image_tag: str) -> str:
     """
-    Runs pytest in the specified directory and returns the results summary.
+    Simulates deploying a Docker image to a specified cloud target (e.g., AWS ECR, Heroku).
     
     Args:
-        test_dir: The directory where tests should be discovered and run (default: current directory).
+        target: The cloud platform or environment (e.g., 'AWS', 'Heroku', 'Proxmox-LXC').
+        image_tag: The tag of the image to deploy.
         
     Returns:
-        A formatted string summary of pytest's findings.
+        A confirmation message with the deployment status.
     """
-    try:
-        # Pytest needs to run in a controlled way to capture output
-        # We use the subprocess approach for simplicity and to capture the full output
-        pytest_output = subprocess.run(
-            ["pytest", test_dir],
-            capture_output=True,
-            text=True,
-            check=False
-        )
-        
-        # The agent needs the full output to understand what failed
-        return f"Pytest execution completed. Results:\n{pytest_output.stdout}"
-        
-    except FileNotFoundError:
-        return "Error: Pytest not found. Please ensure pytest is installed and in PATH."
-    except Exception as e:
-        logger.error(f"Pytest run_pytest failed: {e}")
-        return f"Error running Pytest: {e}"
+    # This is a simulation/placeholder. Actual implementation would involve cloud SDKs or CLI calls.
+    return f"Simulating deployment of image {image_tag} to {target}. Deployment successful at {datetime.now().isoformat()}."
 
-# --- 5. Local Git Tools (Git CLI) ---
+# --- 8. Project Management Tools (Alex) ---
+
+def generate_readme(project_summary: str, features: list, setup_steps: list) -> str:
+    """
+    Generates a README.md content based on inputs from other agents.
+    
+    Args:
+        project_summary: A brief description of the project.
+        features: A list of key features.
+        setup_steps: A list of steps to set up and run the project.
+        
+    Returns:
+        The full Markdown content of the README.md file.
+    """
+    readme_content = f"# {project_summary}\n\n"
+    readme_content += "## Features\n"
+    for feature in features:
+        readme_content += f"- {feature}\n"
+        
+    readme_content += "\n## Setup\n"
+    for step in setup_steps:
+        readme_content += f"1. {step}\n"
+        
+    return readme_content
+
+# --- 9. Research Tools (Riley) ---
+
+def search_best_practices(topic: str) -> str:
+    """
+    Simulates searching a local knowledge base (e.g., MongoDB/FAISS) for best practices on a given topic.
+    
+    Args:
+        topic: The topic to search for (e.g., 'JWT best practices', 'FastAPI error handling').
+        
+    Returns:
+        A summary of the best practices found.
+    """
+    # This is a simulation/placeholder. Actual implementation would involve a vector store query.
+    return f"Best practices for '{topic}' found: Always validate input, use least privilege principle, and implement rate limiting."
+
+# --- 10. Utility Tools (Git CLI) ---
 
 def git_clone(repo_url: str, target_dir: str) -> str:
     """
