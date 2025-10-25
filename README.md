@@ -1,108 +1,341 @@
-# Aria CEO v6.3 - Final Optimized Edition
+# Aria CEO v6.1 - Bugfix Package
 
-**Version:** 6.3-optimized  
-**Datum:** 2025-10-25  
-**Status:** ✅ Produktionsbereit (Hardware-Optimiert)
-
----
-
-## 🚀 Wichtigste Neuerungen in dieser Version
-
-Diese Version integriert alle Bugfixes und führt kritische Optimierungen für Stabilität und Performance ein:
-
-1.  ✅ **Hardware-Optimierte LLM-Zuordnung:** Maximale Nutzung aller verfügbaren Modelle (3B bis 32B) auf Mac Mini und GMKTec, basierend auf RAM-Auslastung und Agenten-Spezialisierung.
-2.  ✅ **Persistenter Memory:** Alle Agents behalten ihren Konversationsverlauf über Sitzungen hinweg bei (`diskcache` / `memory_manager.py`).
-3.  ✅ **Externe YAML-Konfiguration:** Agenten-Prompts und Tool-Zuweisungen sind in `agents_config.yaml` ausgelagert.
-4.  ✅ **Spezialisierte Tools:** Neue Tools für MongoDB-Logging, Redis-Task-Queue und spezifische DevOps/QA-Aufgaben.
-5.  ✅ **Finalisierte Infrastruktur:** Korrekte IP-Zuweisung für alle Dienste (CEO: .150, Data: .151, Dashboard: .152).
+**Version:** 6.1-bugfix-edition  
+**Release Date:** 2025-10-19  
+**Status:** Production Ready
 
 ---
 
-## 📦 Repository-Struktur
+## 🎯 What This Fixes
+
+This bugfix package resolves two critical issues in the Aria CEO system:
+
+### 1. ❌ → ✅ Endless Clarification Loop
+**Problem:** The system kept asking the same clarification questions repeatedly, creating an infinite loop that prevented projects from starting.
+
+**Solution:** Completely disabled the clarification mechanism. Projects now start immediately with the user's initial description.
+
+### 2. ❌ → ✅ Missing Dashboard Broadcasts
+**Problem:** Chat messages weren't appearing in the real-time dashboard at http://192.168.178.152:8090, making it impossible to monitor project progress.
+
+**Solution:** Added WebSocket broadcasting to send all chat messages to the dashboard in real-time.
+
+---
+
+## 📦 Package Contents
 
 ```
-aria-ceo-v6.3/
-├── README.md                    # Diese Datei
-├── INSTALLATION.md              # Detaillierte Installations-Anleitung
-├── CHANGELOG.md                 # Vollständige Änderungshistorie
-├── ARCHITECTURE.md              # System-Architektur Dokumentation
-├── TROUBLESHOOTING.md           # Problemlösungen
-├── aria_ceo.py                  # Haupt-Anwendung (Aria CEO)
-├── install_aria_v6.3.sh         # Automatisches Installations-Script
-├── agents_config.yaml           # YAML-Konfiguration für Agents (Prompts & Skills)
-├── tools.py                     # Alle spezialisierten Tool-Funktionen
-├── memory_manager.py            # Persistenter Speicher-Manager
-├── requirements.txt             # Python-Abhängigkeiten
-├── config/                      # Konfigurations-Templates
-│   └── config.yaml              # Hauptkonfigurations-Template
-└── integrations/                # Integrations-Dateien
-    └── slack_bot_v6.py          # Slack Bot Logik
+aria_bugfix_v7/
+├── aria_ceo_fixed.py           # Fixed version of aria_ceo.py
+├── apply_bugfix.sh             # Automated installation script
+├── BUGFIX_DOCUMENTATION.md     # Detailed technical documentation
+├── QUICK_REFERENCE.md          # Quick reference guide
+└── README.md                   # This file
 ```
 
 ---
 
-## 🎯 Agenten-Team & LLM-Zuordnung (Optimiert)
+## 🚀 Quick Start
 
-Das Team besteht aus 7 spezialisierten Agents (Casey wurde entfernt). Die LLM-Zuweisung ist auf maximale Effizienz optimiert:
-
-| Agent | Host | Zugewiesenes LLM | RAM (ca.) | Rolle |
-| :--- | :--- | :--- | :--- | :--- |
-| **Aria** (CEO) | Mac Mini (`.159`) | `llama3.2:3b` | ~2-3 GB | Projektkoordination, Task-Queueing (Effizienz) |
-| **Riley** (Research) | Mac Mini (`.159`) | `llama3.1:8b` | ~4 GB | Recherche, Best Practices (Spezialisierung) |
-| **Alex** (PM) | GMKTec (`.155`) | `minicpm-v:8b` | ~5.5 GB | Dokumentation, README-Generierung (Schnelligkeit) |
-| **Sam** (Backend) | GMKTec (`.155`) | `deepseek-coder-v2:16b-lite-instruct-q6_K` | ~14 GB | Backend-Entwicklung (Code-Spezialisierung) |
-| **Jordan** (Frontend) | GMKTec (`.155`) | `qwen2.5-coder:32b-instruct-q6_K` | ~26 GB | Frontend-Entwicklung (Komplexität, größte Kapazität) |
-| **Morgan** (DevOps) | GMKTec (`.155`) | `qwen2.5-coder:14b-instruct-q6_K` | ~12 GB | Docker, CI/CD, Deployment (Robustheit) |
-| **Taylor** (QA) | GMKTec (`.155`) | `qwen2.5-coder:7b-instruct-q8_0` | ~8.1 GB | Testing, Code-Analyse (Effizienz) |
-
----
-
-## 🌐 Infrastruktur & Konfiguration
-
-Die Konfiguration ist auf die folgende finale IP-Zuweisung ausgerichtet:
-
-| System | IP-Adresse | Funktion |
-| :--- | :--- | :--- |
-| **CT150** | `192.168.178.150` | **CEO System** (Aria CEO Applikation) |
-| **CT151** | `192.168.178.151` | **Data Services** (MongoDB, Redis, ChromaDB) |
-| **CT152** | `192.168.178.152` | **Dashboard & Monitoring** |
-| **Mac Mini** | `192.168.178.159` | **Ollama LLM** (Aria, Riley) |
-| **GMKtec** | `192.168.178.155` | **Ollama LLM** (Worker Agents) |
-
-### Konfigurationsdateien
-
-- **`config/config.yaml`**: Enthält die finalen IPs und Zugangsdaten für LLMs, Dashboard und Datenbanken.
-- **`agents_config.yaml`**: Enthält die System-Prompts und die Zuweisung der spezialisierten Tools zu jedem Agenten.
-
----
-
-## 🚀 Installation
-
-Die Installation erfolgt über das automatisierte Skript:
+### Installation (3 Commands)
 
 ```bash
-# 1. Repository klonen
-git clone https://github.com/TheRealByteCommander/aria-ceo-v6.3.git
-cd aria-ceo-v6.3
+# 1. Copy to server
+scp aria_bugfix_v7.tar.gz aria-system@192.168.178.150:~
 
-# 2. Installation ausführen (auf CT150)
-./install_aria_v6.3.sh
+# 2. Extract and enter directory
+ssh aria-system@192.168.178.150
+tar -xzf aria_bugfix_v7.tar.gz && cd aria_bugfix_v7
+
+# 3. Run installation script
+./apply_bugfix.sh
 ```
 
-Weitere detaillierte Anweisungen finden Sie in der **`INSTALLATION.md`** Datei.
+That's it! The script handles everything:
+- ✅ Creates automatic backup
+- ✅ Stops service
+- ✅ Installs fixed files
+- ✅ Installs dependencies
+- ✅ Updates configuration
+- ✅ Restarts service
+- ✅ Verifies everything works
 
 ---
 
-## 🐛 Bugfixes & Stabilität
+## ✅ Testing
 
-Alle bekannten Bugs sind behoben:
+### Test 1: No Clarification Questions
 
-- ✅ **Endless Clarification Loop** ist deaktiviert.
-- ✅ **Dashboard Broadcasts** funktionieren zuverlässig mit der korrekten IP (`.150`).
-- ✅ **Slack Status Updates** sind mit korrekter Async-Logik integriert.
-- ✅ **Dateinamen-Inkonsistenzen** wurden behoben.
+Open Slack and send:
+```
+@Aria Erstelle eine einfache Hello World API mit FastAPI und SQLite
+```
+
+**Expected:** Aria starts working immediately without asking clarification questions.
+
+### Test 2: Dashboard Shows Messages
+
+1. Open dashboard: http://192.168.178.152:8090
+2. Open browser console (F12)
+3. Send a project request in Slack
+4. Watch the dashboard
+
+**Expected:** Chat messages appear in real-time as agents collaborate.
+
+### Test 3: Service Stability
+
+Monitor logs:
+```bash
+sudo journalctl -u aria-ceo.service -f
+```
+
+**Expected:** No errors, service remains active, projects complete successfully.
 
 ---
 
-**Empfehlung:** Dieses ist der produktionsreife Stand. Sofort installieren!
+## 📋 System Requirements
+
+- Aria CEO system already installed at `/opt/aria-system`
+- Service running as `aria-ceo.service`
+- Dashboard running at `http://192.168.178.152:8090`
+- Python 3.10+
+- Autogen 0.4.x
+
+---
+
+## 🔧 What Gets Changed
+
+### Files Modified
+- `/opt/aria-system/agents/aria_ceo.py` - Main agent file (backup created automatically)
+
+### Configuration Updated
+- `/opt/aria-system/config/config.yaml` - Adds dashboard WebSocket URL
+
+### Dependencies Added
+- `websockets>=12.0` - Required for dashboard communication
+
+### Backups Created
+- `/opt/aria-system/backups/YYYYMMDD-HHMMSS/aria_ceo.py.backup`
+
+---
+
+## 🔄 Rollback
+
+If you need to revert to the previous version:
+
+```bash
+# Find latest backup
+BACKUP_DIR=$(ls -t /opt/aria-system/backups/ | head -1)
+
+# Restore
+sudo systemctl stop aria-ceo.service
+sudo cp /opt/aria-system/backups/$BACKUP_DIR/aria_ceo.py.backup \
+       /opt/aria-system/agents/aria_ceo.py
+sudo systemctl start aria-ceo.service
+```
+
+---
+
+## 📊 Before vs After
+
+| Feature | Before (v6.0) | After (v6.1) |
+|---------|---------------|--------------|
+| Clarification questions | ❌ Endless loop | ✅ Disabled |
+| Dashboard updates | ❌ Not working | ✅ Real-time |
+| Project start time | ❌ Stuck in loop | ✅ Immediate |
+| User experience | ❌ Frustrating | ✅ Smooth |
+| Monitoring | ❌ No visibility | ✅ Full visibility |
+
+---
+
+## 🎨 Features Preserved
+
+All existing features remain fully functional:
+
+- ✅ 8 specialized worker agents (Aria, Riley, Sam, Jordan, Taylor, Morgan, Alex, Casey)
+- ✅ Free worker communication (agents can talk to each other directly)
+- ✅ GitHub integration (automatic project storage)
+- ✅ Docker Hub integration (automatic image building and pushing)
+- ✅ LLM monitoring (Mac Mini + GMKtec servers)
+- ✅ Slack integration (@mentions, DMs, slash commands)
+- ✅ Code extraction and file generation
+- ✅ Project management and tracking
+
+---
+
+## 📖 Documentation
+
+### Quick Reference
+See `QUICK_REFERENCE.md` for:
+- Installation commands
+- Testing procedures
+- Troubleshooting steps
+- Common issues and solutions
+
+### Detailed Documentation
+See `BUGFIX_DOCUMENTATION.md` for:
+- Technical details of each bug
+- Root cause analysis
+- Implementation details
+- Configuration changes
+- Troubleshooting guide
+
+---
+
+## 🐛 Troubleshooting
+
+### Service Won't Start
+
+```bash
+# Check logs
+sudo journalctl -u aria-ceo.service -n 100 --no-pager
+
+# Check Python syntax
+sudo -u aria-system /opt/aria-system/venv/bin/python -m py_compile \
+     /opt/aria-system/agents/aria_ceo.py
+```
+
+### Dashboard Not Showing Messages
+
+```bash
+# Check config
+grep -A 2 "dashboard:" /opt/aria-system/config/config.yaml
+
+# Should show:
+# dashboard:
+#   websocket_url: "ws://192.168.178.152:8090/ws"
+```
+
+### Still Asking Clarification Questions
+
+```bash
+# Verify correct version installed
+grep "BUGFIX #1" /opt/aria-system/agents/aria_ceo.py
+
+# Force restart
+sudo systemctl restart aria-ceo.service
+```
+
+---
+
+## 📞 Support
+
+### Check Service Status
+```bash
+sudo systemctl status aria-ceo.service
+```
+
+### View Logs
+```bash
+sudo journalctl -u aria-ceo.service -f
+```
+
+### Restart Service
+```bash
+sudo systemctl restart aria-ceo.service
+```
+
+### Check Dashboard
+```bash
+curl http://192.168.178.152:8090
+```
+
+---
+
+## ⚠️ Important Notes
+
+1. **Automatic Backup:** The installation script automatically creates a backup before making changes. You can always rollback.
+
+2. **No Data Loss:** This bugfix only modifies the agent code. All projects, configurations, and data remain untouched.
+
+3. **Zero Downtime:** The installation script stops the service, applies fixes, and restarts. Total downtime: ~10 seconds.
+
+4. **Backward Compatible:** This fix maintains full compatibility with all existing features and integrations.
+
+5. **Production Ready:** This bugfix has been thoroughly tested and is ready for production use.
+
+---
+
+## 🎯 Success Criteria
+
+After installation, you should see:
+
+- ✅ Service shows "active (running)"
+- ✅ No error messages in logs
+- ✅ Slack bot responds to @mentions
+- ✅ Projects start immediately (no clarification questions)
+- ✅ Dashboard shows live chat messages
+- ✅ All 8 workers participate in projects
+- ✅ GitHub integration works
+- ✅ Docker Hub integration works
+
+---
+
+## 📝 Version History
+
+### v6.1-bugfix-edition (2025-10-19)
+- ✅ Fixed endless clarification loop
+- ✅ Fixed missing dashboard broadcasts
+- ✅ Added WebSocket communication
+- ✅ Improved logging
+- ✅ Added automatic backups
+
+### v6.0-complete-enhancement (Previous)
+- GitHub integration
+- Docker Hub integration
+- Free worker communication
+- Real-time web interface
+- Slack clarification questions (buggy - now fixed)
+
+---
+
+## 🚦 Installation Checklist
+
+Before installation:
+- [ ] Aria CEO system is installed
+- [ ] Service is running
+- [ ] Dashboard is accessible
+- [ ] You have SSH access to the server
+
+During installation:
+- [ ] Files copied to server
+- [ ] Extracted to directory
+- [ ] Installation script executed
+- [ ] No errors reported
+
+After installation:
+- [ ] Service is running
+- [ ] No errors in logs
+- [ ] Slack bot responds
+- [ ] Dashboard shows messages
+- [ ] Test project completes successfully
+
+---
+
+## 🎓 Learn More
+
+- **QUICK_REFERENCE.md** - Quick commands and troubleshooting
+- **BUGFIX_DOCUMENTATION.md** - Detailed technical documentation
+- **Logs:** `sudo journalctl -u aria-ceo.service -f`
+- **Dashboard:** http://192.168.178.152:8090
+
+---
+
+## 🏆 Summary
+
+This bugfix package provides a **simple, automated, and safe** way to fix two critical bugs in the Aria CEO system:
+
+1. **Endless clarification loop** → Now disabled
+2. **Missing dashboard broadcasts** → Now working
+
+The installation takes **less than 1 minute**, creates **automatic backups**, and maintains **full compatibility** with all existing features.
+
+**Ready to install?** Follow the Quick Start section above!
+
+---
+
+**Questions or issues?** Check the logs first:
+```bash
+sudo journalctl -u aria-ceo.service -f
+```
 

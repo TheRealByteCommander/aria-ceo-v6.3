@@ -1,0 +1,15 @@
+[Unit]
+Description=Aria CEO v6.3 Multi-Agent Orchestrator
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/aria-ceo-v6.3
+ExecStart=/usr/bin/python3 /home/ubuntu/aria-ceo-v6.3/aria_ceo.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

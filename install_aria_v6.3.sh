@@ -65,6 +65,17 @@ if [ -f "/opt/aria-system/config/config.yaml" ]; then
     cp /opt/aria-system/config/config.yaml "$BACKUP_DIR/config.yaml.backup"
 fi
 
+# Install Systemd Service
+echo ""
+echo "Installing Systemd service file..."
+# Copy the new service file to the systemd directory
+cp /home/ubuntu/aria-ceo-v6.3/aria-ceo.service /etc/systemd/system/aria-ceo.service
+# Reload systemd daemon to recognize the new service file
+systemctl daemon-reload
+# Enable the service to start on boot
+systemctl enable aria-ceo.service
+echo -e "${GREEN}✓${NC} Systemd service installed and enabled"
+
 # Stop service
 echo ""
 echo "Stopping aria-ceo service..."
@@ -200,10 +211,12 @@ fi
 # Start service
 echo ""
 echo "Starting aria-ceo service..."
-if systemctl list-unit-files | grep -q aria-ceo.service; then
+# Check if the service file exists and start it
+if [ -f "/etc/systemd/system/aria-ceo.service" ]; then
     systemctl start aria-ceo.service
     sleep 3
     
+    # Check if the service is active (it should be if the start command succeeded)
     if systemctl is-active --quiet aria-ceo.service; then
         echo -e "${GREEN}✓${NC} Service started successfully"
     else
@@ -212,7 +225,7 @@ if systemctl list-unit-files | grep -q aria-ceo.service; then
         exit 1
     fi
 else
-    echo -e "${YELLOW}Warning: aria-ceo.service not found${NC}"
+    echo -e "${YELLOW}Warning: aria-ceo.service file not found in /etc/systemd/system/${NC}"
 fi
 
 # Verify installation

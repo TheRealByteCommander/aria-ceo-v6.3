@@ -1,5 +1,7 @@
 # Aria CEO v6.3 - Final Installation Guide
 
+**WICHTIGER HINWEIS:** Dieses Dokument wurde aktualisiert, um einen kritischen Fehler im Installationsskript zu beheben, der zu einer Neustart-Schleife des Dienstes führte. Das Skript installiert nun die `systemd`-Service-Datei korrekt.
+
 **Version:** 6.3-optimized-edition  
 **Target System:** CEO System at 192.168.178.150 (CT150)  
 **Estimated Time:** 5 minutes  
@@ -47,7 +49,7 @@ ssh aria-system@192.168.178.150 "hostname"
 
 If you're reading this, you already have the package! The file is:
 ```
-aria_bugfix_v7.tar.gz
+aria_ceo_v6.3.tar.gz
 ```
 
 ### Step 2: Copy to Server
@@ -55,12 +57,12 @@ aria_bugfix_v7.tar.gz
 From your local machine (Windows PowerShell, Mac Terminal, or Linux):
 
 ```bash
-scp aria_bugfix_v7.tar.gz aria-system@192.168.178.150:~
+scp aria_ceo_v6.3.tar.gz aria-system@192.168.178.150:~
 ```
 
 **Expected output:**
 ```
-aria_bugfix_v7.tar.gz                100%   15KB   1.5MB/s   00:00
+aria_ceo_v6.3.tar.gz                100%   15KB   1.5MB/s   00:00
 ```
 
 ### Step 3: Connect to Server
@@ -74,8 +76,8 @@ You should now be logged into the server.
 ### Step 4: Extract the Package
 
 ```bash
-tar -xzf aria_bugfix_v7.tar.gz
-cd aria_bugfix_v7
+tar -xzf aria_ceo_v6.3.tar.gz
+cd aria_ceo_v6.3
 ```
 
 **Verify extraction:**
@@ -89,8 +91,8 @@ total XX
 drwxrwxr-x 2 aria-system aria-system 4096 Oct 19 10:30 .
 drwxr-xr-x 8 aria-system aria-system 4096 Oct 19 10:30 ..
 -rw-rw-r-- 1 aria-system aria-system XXXX Oct 19 10:30 aria_ceo.py
--rwxrwxr-x 1 aria-system aria-system XXXX Oct 19 10:30 apply_bugfix.sh
--rw-rw-r-- 1 aria-system aria-system XXXX Oct 19 10:30 BUGFIX_DOCUMENTATION.md
+-rwxrwxr-x 1 aria-system aria-system XXXX Oct 19 10:30 install_aria_v6.3.sh
+-rw-rw-r-- 1 aria-system aria-system XXXX Oct 19 10:30 INSTALLATION.md
 -rw-rw-r-- 1 aria-system aria-system XXXX Oct 19 10:30 QUICK_REFERENCE.md
 -rw-rw-r-- 1 aria-system aria-system XXXX Oct 19 10:30 README.md
 ```
@@ -110,13 +112,15 @@ drwxr-xr-x 8 aria-system aria-system 4096 Oct 19 10:30 ..
 5. ✅ Installs websockets dependency
 6. ✅ Updates configuration
 7. ✅ Starts aria-ceo service
-8. ✅ Verifies service is running
-9. ✅ Shows recent logs
+8. ✅ Installs Systemd service file
+9. ✅ Reloads Systemd and enables the service
+10. ✅ Starts aria-ceo service
+11. ✅ Verifies service is running
 
 **Expected output:**
 ```
 ==========================================
-Aria CEO v6.1 - Bugfix Installation
+Aria CEO v6.3 - Final Installation
 ==========================================
 
 ✓ System directory found
@@ -554,8 +558,8 @@ After successful installation:
 4. **Clean up** - Remove the installation files:
    ```bash
    cd ~
-   rm -rf aria_bugfix_v7/
-   rm aria_bugfix_v7.tar.gz
+   rm -rf aria_ceo_v6.3/
+   rm aria_ceo_v6.3.tar.gz
    ```
 
 5. **Update documentation** - If you made any changes, document them
@@ -627,7 +631,7 @@ journalctl -u aria-ceo.service
 
 - **README.md** - Overview and quick start
 - **QUICK_REFERENCE.md** - Quick commands and troubleshooting
-- **BUGFIX_DOCUMENTATION.md** - Detailed technical documentation
+- **INSTALLATION.md** - Detailed technical documentation
 
 ---
 
