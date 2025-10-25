@@ -28,7 +28,7 @@ agents:
 
       When the project is complete, say: "TERMINATE"
     skills:
-      - none
+      - fetch_specs
   
   Sam:
     name: Sam
@@ -70,7 +70,9 @@ agents:
 
       ALWAYS include the "# File: path/to/file" header!
     skills:
-      - none
+      - commit_code
+      - git_clone
+      - git_push
 
   Jordan:
     name: Jordan
@@ -98,7 +100,9 @@ agents:
 
       If no frontend is needed, say: "No frontend required for this project."
     skills:
-      - none
+      - commit_code
+      - git_clone
+      - git_push
 
   Taylor:
     name: Taylor
@@ -125,7 +129,9 @@ agents:
 
       You MUST provide comprehensive tests with "# File: tests/test_*.py" headers.
     skills:
-      - none
+      - run_pylint_analysis
+      - run_pytest
+      - log_test_result_to_notion
 
   Morgan:
     name: Morgan
@@ -155,7 +161,7 @@ agents:
 
       This is MANDATORY for every project!
     skills:
-      - none
+      - build_docker_image
 
   Alex:
     name: Alex
@@ -180,7 +186,7 @@ agents:
 
       You MUST provide README.md with "# File: README.md" header.
     skills:
-      - none
+      - fetch_specs
 
   Riley:
     name: Riley

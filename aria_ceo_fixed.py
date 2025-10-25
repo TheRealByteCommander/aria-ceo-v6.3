@@ -21,10 +21,11 @@ import time
 import websockets
 
 from autogen import AssistantAgent, GroupChat, GroupChatManager, ConversableAgent
-# from autogen.agentchat.contrib.agent_with_tool_calling import AgentWithToolCalling # Removed due to syntax error and not currently needed
+from autogen.agentchat.contrib.agent_with_tool_calling import AgentWithToolCalling
 
 # Import Memory Manager
 from memory_manager import MemoryManager
+import tools
 
 # Import integrations
 from integrations.github_integration import GitHubIntegration
@@ -193,15 +194,22 @@ class AriaCEO:
         for agent_name, config in self.agent_configs.items():
             system_message = config['system_message']
             
-            # Use AssistantAgent for simplicity, or AgentWithToolCalling if tools are defined
-            # For now, we stick to AssistantAgent as tools are not yet implemented in the YAML
-            # We can upgrade to AgentWithToolCalling later if needed.
-            
-            agent = AssistantAgent(
+            # Use AgentWithToolCalling to enable tool use
+            agent = AgentWithToolCalling(
                 name=agent_name,
                 system_message=system_message,
                 llm_config=llm_config,
+                is_termination_msg=lambda x: x.get("content", "").rstrip().endswith("TERMINATE"),
             )
+            
+            # Register tools based on the YAML configuration
+            for tool_name in config.get('skills', []):
+                if hasattr(tools, tool_name):
+                    agent.register_for_llm(getattr(tools, tool_name))
+                    agent.register_for_exec(getattr(tools, tool_name))
+                    logger.info(f"Tool '{tool_name}' registered for agent '{agent_name}'")
+                else:
+                    logger.warning(f"Tool '{tool_name}' not found in tools.py for agent '{agent_name}'")
             
             # Load memory for the agent
             self._load_agent_memory(agent)
