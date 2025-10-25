@@ -75,6 +75,28 @@ else
     echo -e "${YELLOW}Note: Service not running${NC}"
 fi
 
+# Install documentation files
+echo ""
+echo "Installing documentation files..."
+
+# Copy main documentation files to /opt/aria-system/
+cp INSTALLATION.md /opt/aria-system/
+cp CHANGELOG.md /opt/aria-system/
+cp ARCHITECTURE.md /opt/aria-system/
+cp TROUBLESHOOTING.md /opt/aria-system/
+
+# Copy other documentation files to /opt/aria-system/docs/
+mkdir -p /opt/aria-system/docs/
+cp docs/ARIA_BUGFIX_V7_EXECUTIVE_SUMMARY.md /opt/aria-system/docs/
+cp docs/ARIA_BUGFIX_V7_FINAL_SUMMARY.md /opt/aria-system/docs/
+cp docs/DEPLOYMENT_INSTRUCTIONS_V7.md /opt/aria-system/docs/
+cp docs/aria_bugfix_v7_diagram.md /opt/aria-system/docs/
+cp docs/BUGFIX_DOCUMENTATION.md /opt/aria-system/docs/
+cp docs/IP_ADDRESSES_CORRECTED.md /opt/aria-system/docs/
+cp docs/QUICK_REFERENCE.md /opt/aria-system/docs/
+cp docs/VALIDATION_CHECKLIST.md /opt/aria-system/docs/
+echo -e "${GREEN}✓${NC} Documentation installed"
+
 # Install fixed aria_ceo.py
 echo ""
 echo "Installing aria_ceo.py (v6.3)..."
