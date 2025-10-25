@@ -53,8 +53,10 @@ class AriaCEO:
     Memory Edition
     """
     
-    def __init__(self, slack_client=None):
+  def __init__(self, slack_client=None):, slack_client=None):
         self.version = "6.3-memory-edition"
+        self.slack_client = slack_client
+        self.current_channel = None
         logger.info(f"Initializing Aria CEO - Version {self.version}")
         
         # Slack client for status updates
