@@ -16,6 +16,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, List
 
+# Add agents directory to Python path for standalone installation
+_AGENTS_DIR = Path(__file__).parent
+if str(_AGENTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_AGENTS_DIR))
+
 import yaml
 from loguru import logger
 import websockets
