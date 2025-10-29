@@ -68,8 +68,12 @@ fi
 # Install Systemd Service
 echo ""
 echo "Installing Systemd service file..."
+
+# Determine script directory for reliable relative paths
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # Copy the new service file to the systemd directory
-cp /home/ubuntu/aria-ceo-v6.3/aria-ceo.service /etc/systemd/system/aria-ceo.service
+cp "$SCRIPT_DIR/aria-ceo.service" /etc/systemd/system/aria-ceo.service
 # Reload systemd daemon to recognize the new service file
 systemctl daemon-reload
 # Enable the service to start on boot
@@ -85,6 +89,11 @@ if systemctl is-active --quiet aria-ceo.service; then
 else
     echo -e "${YELLOW}Note: Service not running${NC}"
 fi
+
+# Ensure target directories exist
+mkdir -p /opt/aria-system/agents
+mkdir -p /opt/aria-system/integrations
+mkdir -p /opt/aria-system/config
 
 # Install documentation files
 echo ""
@@ -110,8 +119,9 @@ echo -e "${GREEN}✓${NC} Documentation installed"
 
 # Install fixed aria_ceo.py
 echo ""
-echo "Installing aria_ceo.py (v6.3)..."
-cp aria_ceo.py /opt/aria-system/agents/aria_ceo.py
+echo "Installing aria_ceo.py (v6.3) und aria_ceo_v7.py..."
+cp "$SCRIPT_DIR/aria_ceo.py" /opt/aria-system/agents/aria_ceo.py
+cp "$SCRIPT_DIR/aria_ceo_v7.py" /opt/aria-system/agents/aria_ceo_v7.py
 chown $SYSTEM_USER:$SYSTEM_USER /opt/aria-system/agents/aria_ceo.py
 chmod 644 /opt/aria-system/agents/aria_ceo.py
 echo -e "${GREEN}✓${NC} Aria CEO v6.3 installed"
@@ -119,28 +129,28 @@ echo -e "${GREEN}✓${NC} Aria CEO v6.3 installed"
 # Install new dependencies and configuration
 echo ""
 echo "Installing new dependencies (memory_manager.py, tools.py, requirements.txt)..."
-cp memory_manager.py /opt/aria-system/agents/memory_manager.py
+cp "$SCRIPT_DIR/memory_manager.py" /opt/aria-system/agents/memory_manager.py
 chown $SYSTEM_USER:$SYSTEM_USER /opt/aria-system/agents/memory_manager.py
 chmod 644 /opt/aria-system/agents/memory_manager.py
 
-cp tools.py /opt/aria-system/agents/tools.py
+cp "$SCRIPT_DIR/tools.py" /opt/aria-system/agents/tools.py
 chown $SYSTEM_USER:$SYSTEM_USER /opt/aria-system/agents/tools.py
 chmod 644 /opt/aria-system/agents/tools.py
 
-cp requirements.txt /opt/aria-system/requirements.txt
+cp "$SCRIPT_DIR/requirements.txt" /opt/aria-system/requirements.txt
 chown $SYSTEM_USER:$SYSTEM_USER /opt/aria-system/requirements.txt
 chmod 644 /opt/aria-system/requirements.txt
 echo -e "${GREEN}✓${NC} Dependencies installed"
 
 echo ""
-echo "Installing new configuration (agents_config.yaml, config.yaml)..."
-cp agents_config.yaml /opt/aria-system/config/agents_config.yaml
+echo "Installing new configuration (agents_config.yaml, config.yaml, agents_v7.yaml, tools_v7.yaml)..."
+cp "$SCRIPT_DIR/agents_config.yaml" /opt/aria-system/config/agents_config.yaml
 chown $SYSTEM_USER:$SYSTEM_USER /opt/aria-system/config/agents_config.yaml
 chmod 644 /opt/aria-system/config/agents_config.yaml
 
 # Copy config.yaml template (only if it doesn't exist to preserve local changes)
 if [ ! -f "/opt/aria-system/config/config.yaml" ]; then
-    cp config/config.yaml /opt/aria-system/config/config.yaml
+    cp "$SCRIPT_DIR/config/config.yaml" /opt/aria-system/config/config.yaml
     chown $SYSTEM_USER:$SYSTEM_USER /opt/aria-system/config/config.yaml
     chmod 644 /opt/aria-system/config/config.yaml
     echo -e "${GREEN}✓${NC} config.yaml template installed"
@@ -149,10 +159,14 @@ else
 fi
 echo -e "${GREEN}✓${NC} Configuration installed"
 
+# v7 specific config files
+cp "$SCRIPT_DIR/config/agents_v7.yaml" /opt/aria-system/config/agents_v7.yaml
+cp "$SCRIPT_DIR/config/tools_v7.yaml" /opt/aria-system/config/tools_v7.yaml
+
 # Install Slack bot integration file
 echo ""
 echo "Installing Slack bot integration file..."
-SLACK_BOT_FILE_SRC="integrations/slack_bot_v6.py"
+SLACK_BOT_FILE_SRC="$SCRIPT_DIR/integrations/slack_bot_v6.py"
 SLACK_BOT_FILE_DST="/opt/aria-system/integrations/slack_bot_v6.py"
 
 cp "$SLACK_BOT_FILE_SRC" "$SLACK_BOT_FILE_DST"

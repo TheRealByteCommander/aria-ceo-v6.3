@@ -339,3 +339,29 @@ The installation takes **less than 1 minute**, creates **automatic backups**, an
 sudo journalctl -u aria-ceo.service -f
 ```
 
+## Aria CEO v7.0 (Config-driven)
+
+- Einstieg: `aria_ceo_v7.py`
+- Konfigurationsdateien:
+  - `config/config.yaml` (LLM, Dashboard, Datenbanken, Integrationen)
+  - `config/agents_v7.yaml` (Agenten, Rollen, LLM-Profile, Skills)
+  - `config/tools_v7.yaml` (Tools und optionale Env-Zuordnung via ${...})
+
+### Nutzung
+
+```bash
+# Nur Konfiguration prüfen
+python aria_ceo_v7.py --validate-config
+
+# Dry-Run (Initialisierung ohne Chat)
+python aria_ceo_v7.py --dry-run
+
+# Projekt starten (Beispiel)
+python aria_ceo_v7.py --project "Baue eine REST API mit CRUD und Frontend"
+```
+
+### Hinweise
+- Agents/Skills lassen sich ohne Codeänderung über YAML anpassen.
+- Env-Variablen können in `tools_v7.yaml` über `${pfad.zur.einstellung}` aus `config.yaml` referenziert werden.
+- Logs enthalten klare Fehlermeldungen bei Konfigurationsproblemen.
+

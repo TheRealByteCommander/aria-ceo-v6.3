@@ -1,0 +1,29 @@
+version: 7.0
+
+# Tool-level configuration and environment bridges. Runtime env vars still supported.
+
+tools:
+  # Names must match callables in tools.py
+  - name: fetch_specs
+  - name: commit_code
+
+  - name: queue_task
+    env:
+      REDIS_HOST: ${database.redis.host}
+      REDIS_PORT: ${database.redis.port}
+
+  - name: log_test_result_to_mongo
+    env:
+      MONGO_URI: mongodb://${database.mongodb.host}:${database.mongodb.port}/
+      MONGO_DB_NAME: ${database.mongodb.database}
+
+  - name: run_db_migration
+  - name: generate_api_docs
+  - name: build_frontend
+  - name: run_integration_tests
+  - name: build_docker_image
+  - name: run_docker_compose
+  - name: deploy_to_cloud
+  - name: generate_readme
+  - name: search_best_practices
+

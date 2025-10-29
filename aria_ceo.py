@@ -28,8 +28,19 @@ from memory_manager import MemoryManager
 import tools
 
 # Import integrations
-from integrations.github_integration import GitHubIntegration
-from integrations.dockerhub_integration import DockerHubIntegration
+try:
+    from integrations.github_integration import GitHubIntegration
+    GITHUB_INTEGRATION_AVAILABLE = True
+except ImportError:
+    GITHUB_INTEGRATION_AVAILABLE = False
+    GitHubIntegration = None  # type: ignore
+
+try:
+    from integrations.dockerhub_integration import DockerHubIntegration
+    DOCKERHUB_INTEGRATION_AVAILABLE = True
+except ImportError:
+    DOCKERHUB_INTEGRATION_AVAILABLE = False
+    DockerHubIntegration = None  # type: ignore
 
 # Import utilities (to be created)
 try:
@@ -53,7 +64,7 @@ class AriaCEO:
     Memory Edition
     """
     
-  def __init__(self, slack_client=None):, slack_client=None):
+    def __init__(self, slack_client=None):
         self.version = "6.3-memory-edition"
         self.slack_client = slack_client
         self.current_channel = None
@@ -69,13 +80,37 @@ class AriaCEO:
         # Initialize Database Configuration
         self.db_config = self.config.get('database', {})
         
-        # Initialize GitHub integration
+        # Initialize GitHub integration (optional)
         github_config = self.config.get('github', {})
-        self.github = GitHubIntegration(github_config)
-        
-        # Initialize Docker Hub integration
+        if GITHUB_INTEGRATION_AVAILABLE and GitHubIntegration is not None:
+            try:
+                self.github = GitHubIntegration(github_config)
+            except Exception:
+                class _Disabled:
+                    enabled = False
+                self.github = _Disabled()
+                logger.warning("GitHubIntegration initialization failed; disabled.")
+        else:
+            class _Disabled:
+                enabled = False
+            self.github = _Disabled()
+            logger.warning("GitHubIntegration not available; disabled.")
+
+        # Initialize Docker Hub integration (optional)
         dockerhub_config = self.config.get('docker_hub', {})
-        self.dockerhub = DockerHubIntegration(dockerhub_config)
+        if DOCKERHUB_INTEGRATION_AVAILABLE and DockerHubIntegration is not None:
+            try:
+                self.dockerhub = DockerHubIntegration(dockerhub_config)
+            except Exception:
+                class _Disabled:
+                    enabled = False
+                self.dockerhub = _Disabled()
+                logger.warning("DockerHubIntegration initialization failed; disabled.")
+        else:
+            class _Disabled:
+                enabled = False
+            self.dockerhub = _Disabled()
+            logger.warning("DockerHubIntegration not available; disabled.")
         
         # Initialize LLM Monitor
         if LLM_MONITOR_AVAILABLE:
@@ -119,12 +154,14 @@ class AriaCEO:
 
     def _load_agent_configs(self):
         """Load agent configurations from YAML file"""
-        config_path = Path(__file__).parent / "agents_config.yaml"
+        system_config = Path("/opt/aria-system/config/agents_config.yaml")
+        local_config = Path(__file__).parent / "agents_config.yaml"
+        config_path = system_config if system_config.exists() else local_config
         if config_path.exists():
             with open(config_path) as f:
-                data = yaml.safe_load(f)
+                data = yaml.safe_load(f) or {}
                 return data.get('agents', {})
-        logger.error("agents_config.yaml not found!")
+        logger.error("agents_config.yaml not found in system or local paths!")
         return {}
     
     def _get_llm_config(self):
@@ -244,7 +281,7 @@ class AriaCEO:
         self.sam = self.agents['Sam']
         self.jordan = self.agents['Jordan']
         self.taylor = self.agents['Taylor']
-          self.alex = self.agents['Alex']
+        self.alex = self.agents['Alex']
         self.riley = self.agents['Riley']
         # self.casey = self.agents['Casey'] # Removed Casey for optimization
         

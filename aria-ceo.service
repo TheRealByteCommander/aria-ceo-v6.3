@@ -1,11 +1,11 @@
 [Unit]
-Description=Aria CEO v6.3 Multi-Agent Orchestrator
+Description=Aria CEO v7.0 Config-Driven Multi-Agent Orchestrator
 After=network.target
 
 [Service]
 User=ubuntu
-WorkingDirectory=/home/ubuntu/aria-ceo-v6.3
-ExecStart=/usr/bin/python3 /home/ubuntu/aria-ceo-v6.3/aria_ceo.py
+WorkingDirectory=/opt/aria-system
+ExecStart=/usr/bin/python3 /opt/aria-system/agents/aria_ceo_v7.py
 Restart=always
 RestartSec=10
 StandardOutput=journal

@@ -1,0 +1,82 @@
+version: 7.0
+
+# High-level LLM and global settings are still read from config/config.yaml (llm, dashboard, database, github, docker_hub)
+
+agents:
+  - name: Aria
+    type: assistant
+    role: orchestrator
+    llm_profile: mac_mini.aria
+    system_message: |
+      You are Aria, the Virtual CEO. Coordinate the team to deliver complete software.
+      Enforce free communication between agents. When done, say: TERMINATE
+    skills:
+      - fetch_specs
+      - queue_task
+
+  - name: Sam
+    type: assistant
+    role: backend
+    llm_profile: gmktec.sam
+    system_message: |
+      Senior Backend Engineer. Produce complete backend, tests, Dockerfile, compose. Coordinate with others.
+    skills:
+      - commit_code
+      - run_db_migration
+      - generate_api_docs
+
+  - name: Jordan
+    type: assistant
+    role: frontend
+    llm_profile: gmktec.jordan
+    system_message: |
+      Senior Frontend Engineer. Deliver production-ready frontend and coordinate with Sam/Taylor/Morgan.
+    skills:
+      - commit_code
+      - build_frontend
+
+  - name: Taylor
+    type: assistant
+    role: qa
+    llm_profile: gmktec.taylor
+    system_message: |
+      Senior QA Engineer. Provide tests and quality gates. Report coverage and issues.
+    skills:
+      - run_integration_tests
+      - log_test_result_to_mongo
+
+  - name: Morgan
+    type: assistant
+    role: devops
+    llm_profile: gmktec.morgan
+    system_message: |
+      Senior DevOps Engineer. Build images, run compose, prepare deployment steps.
+    skills:
+      - build_docker_image
+      - run_docker_compose
+      - deploy_to_cloud
+
+  - name: Alex
+    type: assistant
+    role: pm
+    llm_profile: gmktec.alex
+    system_message: |
+      Senior Project Manager. Produce README and documentation based on team inputs.
+    skills:
+      - generate_readme
+
+  - name: Riley
+    type: assistant
+    role: research
+    llm_profile: mac_mini.riley
+    system_message: |
+      Senior Research Specialist. Provide best practices and guidance on demand.
+    skills:
+      - search_best_practices
+
+# Optional toggles or advanced settings
+group_chat:
+  max_round: 250
+  speaker_selection_method: auto
+  allow_repeat_speaker: true
+
